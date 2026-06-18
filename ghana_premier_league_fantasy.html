@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ghana Premier League Fantasy 2025-26</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #006B3F;
+            --secondary: #FFD700;
+            --accent: #CE1126;
+            --dark: #0a1f0a;
+            --card: #111d11;
+            --text: #e8e8e8;
+            --muted: #888;
+        }
+        body {
+            background: var(--dark);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), #004d2e);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--secondary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 {
+            font-size: 22px;
+            color: var(--secondary);
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+        .budget-display {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        .gameweek-badge {
+            background: var(--accent);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: var(--card);
+            border-bottom: 1px solid #222;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .nav-tab {
+            flex: 1;
+            min-width: 100px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        .nav-tab:hover { color: var(--text); }
+        .nav-tab.active {
+            color: var(--secondary);
+            border-bottom-color: var(--secondary);
+            background: rgba(255,215,0,0.05);
+        }
+
+        /* Sections */
+        .section { display: none; padding: 20px; max-width: 900px; margin: 0 auto; }
+        .section.active { display: block; }
+
+        /* Pitch View */
+        .pitch-container {
+            background: linear-gradient(180deg, #1a3a1a 0%, #0d240d 100%);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            min-height: 520px;
+            border: 2px solid rgba(255,215,0,0.2);
+        }
+        .pitch-lines {
+            position: absolute;
+            top: 20px; left: 20px; right: 20px; bottom: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        .pitch-lines::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0; right: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+        .pitch-lines::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px; height: 80px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .formation-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
+        }
+        .formation-row.gk { margin-top: 10px; }
+        .formation-row.def { margin-top: 15px; }
+        .formation-row.mid { margin-top: 15px; }
+        .formation-row.fwd { margin-top: 15px; margin-bottom: 10px; }
+
+        .player-slot {
+            width: 70px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .player-slot:hover { transform: scale(1.05); }
+        .player-slot.empty .player-circle {
+            background: rgba(255,255,255,0.08);
+            border: 2px dashed rgba(255,255,255,0.2);
+        }
+        .player-slot.empty .player-circle::after {
+            content: '+';
+            color: rgba(255,255,255,0.3);
+            font-size: 24px;
+        }
+        .player-circle {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            margin: 0 auto 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            position: relative;
+            border: 2px solid transparent;
+        }
+        .player-circle.gk { background: #ff6b35; }
+        .player-circle.def { background: #4ecdc4; }
+        .player-circle.mid { background: #45b7d1; }
+        .player-circle.fwd { background: #f9ca24; }
+        .player-circle.captain { border-color: var(--secondary); box-shadow: 0 0 10px rgba(255,215,0,0.4); }
+        .captain-badge {
+            position: absolute;
+            bottom: -2px; right: -2px;
+            background: var(--secondary);
+            color: #000;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .player-name {
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70px;
+        }
+        .player-points {
+            font-size: 9px;
+            color: var(--secondary);
+        }
+        .player-team {
+            font-size: 8px;
+            color: var(--muted);
+        }
+
+        /* Bench */
+        .bench-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+        }
+        .bench-title {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .bench-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .bench-slot {
+            width: 60px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .bench-slot .player-circle {
+            width: 44px; height: 44px;
+            font-size: 18px;
+        }
+        .bench-slot .player-name { font-size: 9px; max-width: 60px; }
+
+        /* Formation Selector */
+        .formation-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .formation-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            background: var(--card);
+            color: var(--text);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .formation-btn:hover { border-color: var(--secondary); }
+        .formation-btn.active {
+            background: var(--primary);
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        /* Player List */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            background: var(--card);
+            color: var(--text);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            background: var(--card);
+            color: var(--text);
+            font-size: 14px;
+        }
+        .search-box::placeholder { color: var(--muted); }
+
+        .player-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .player-card {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--card);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .player-card:hover {
+            border-color: var(--secondary);
+            background: #1a2a1a;
+        }
+        .player-card.selected {
+            border-color: var(--secondary);
+            background: rgba(255,215,0,0.1);
+        }
+        .player-card .emoji {
+            font-size: 28px;
+            margin-right: 12px;
+            width: 40px;
+            text-align: center;
+        }
+        .player-info { flex: 1; }
+        .player-info .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .player-info .meta {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .player-price {
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 14px;
+            margin-right: 15px;
+        }
+        .player-stats {
+            text-align: right;
+            font-size: 12px;
+        }
+        .player-stats .pts {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .add-btn {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--secondary);
+            background: transparent;
+            color: var(--secondary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .add-btn:hover {
+            background: var(--secondary);
+            color: #000;
+        }
+        .add-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #222;
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .leaderboard-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #222;
+        }
+        .leaderboard-row:last-child { border-bottom: none; }
+        .rank {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        .rank.gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+        .rank.silver { background: linear-gradient(135deg, #C0C0C0, #808080); color: #000; }
+        .rank.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); color: #fff; }
+        .rank.normal { background: #222; color: var(--muted); }
+        .leader-name { flex: 1; font-size: 14px; }
+        .leader-points { font-weight: bold; color: var(--secondary); }
+
+        /* League Table */
+        .table-container {
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .table-header {
+            display: grid;
+            grid-template-columns: 40px 1fr 40px 40px 40px 40px 40px 50px;
+            padding: 12px 15px;
+            background: rgba(0,107,63,0.3);
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 40px 1fr 40px 40px 40px 40px 40px 50px;
+            padding: 10px 15px;
+            border-bottom: 1px solid #222;
+            align-items: center;
+            font-size: 13px;
+        }
+        .table-row:hover { background: rgba(255,255,255,0.02); }
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .team-badge {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .pos-champ { color: var(--secondary); }
+        .pos-rel { color: var(--accent); }
+
+        /* Fixtures */
+        .fixture-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: var(--card);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .fixture-team {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        .fixture-team.away { justify-content: flex-end; }
+        .fixture-time {
+            text-align: center;
+            padding: 0 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 16px; }
+            .player-slot { width: 60px; }
+            .player-circle { width: 48px; height: 48px; font-size: 18px; }
+            .player-name { font-size: 9px; max-width: 60px; }
+            .formation-row { gap: 8px; }
+            .table-header, .table-row {
+                grid-template-columns: 30px 1fr 30px 30px 30px 30px 30px 40px;
+                font-size: 11px;
+                padding: 8px 10px;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .live-indicator {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--primary);
+            color: var(--secondary);
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            z-index: 300;
+            transition: transform 0.3s;
+            border: 1px solid var(--secondary);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🇬🇭 Ghana Premier League Fantasy</h1>
+        <div class="user-info">
+            <span class="gameweek-badge">GW <span id="currentGW">1</span></span>
+            <span class="budget-display">💰 <span id="budget">100.0</span>M</span>
+            <span style="font-size:13px;">👤 <span id="totalPoints">0</span> pts</span>
+        </div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="nav-tab active" data-section="team">My Team</button>
+        <button class="nav-tab" data-section="transfers">Transfers</button>
+        <button class="nav-tab" data-section="league">League Table</button>
+        <button class="nav-tab" data-section="stats">Stats</button>
+        <button class="nav-tab" data-section="fixtures">Fixtures</button>
+    </div>
+
+    <!-- MY TEAM SECTION -->
+    <div class="section active" id="team-section">
+        <div class="formation-bar">
+            <button class="formation-btn active" data-form="3-4-3">3-4-3</button>
+            <button class="formation-btn" data-form="3-5-2">3-5-2</button>
+            <button class="formation-btn" data-form="4-3-3">4-3-3</button>
+            <button class="formation-btn" data-form="4-4-2">4-4-2</button>
+            <button class="formation-btn" data-form="5-3-2">5-3-2</button>
+            <button class="formation-btn" data-form="5-4-1">5-4-1</button>
+        </div>
+
+        <div class="pitch-container">
+            <div class="pitch-lines"></div>
+
+            <div class="formation-row gk" id="gk-row"></div>
+            <div class="formation-row def" id="def-row"></div>
+            <div class="formation-row mid" id="mid-row"></div>
+            <div class="formation-row fwd" id="fwd-row"></div>
+
+            <div class="bench-section">
+                <div class="bench-title">Substitutes</div>
+                <div class="bench-row" id="bench-row"></div>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:15px;">
+            <button class="formation-btn" id="saveTeamBtn" style="background:var(--primary); color:var(--secondary); border-color:var(--secondary); padding:12px 30px;">
+                💾 Save Team
+            </button>
+        </div>
+    </div>
+
+    <!-- TRANSFERS SECTION -->
+    <div class="section" id="transfers-section">
+        <div class="filters">
+            <input type="text" class="search-box" id="playerSearch" placeholder="Search players...">
+            <button class="filter-btn active" data-pos="all">All</button>
+            <button class="filter-btn" data-pos="GK">GK</button>
+            <button class="filter-btn" data-pos="DEF">DEF</button>
+            <button class="filter-btn" data-pos="MID">MID</button>
+            <button class="filter-btn" data-pos="FWD">FWD</button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <span style="color:var(--muted); font-size:13px;">Click + to add to your team</span>
+            <span style="color:var(--muted); font-size:13px;">Free Transfers: <span id="freeTransfers" style="color:var(--secondary); font-weight:bold;">1</span></span>
+        </div>
+        <div class="player-list" id="playerList"></div>
+    </div>
+
+    <!-- LEAGUE TABLE SECTION -->
+    <div class="section" id="league-section">
+        <h2 style="margin-bottom:15px; color:var(--secondary);">📊 2025-26 Standings</h2>
+        <div class="table-container" id="leagueTable"></div>
+    </div>
+
+    <!-- STATS SECTION -->
+    <div class="section" id="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>🏆 Top Scorers</h3>
+                <div id="topScorers"></div>
+            </div>
+            <div class="stat-card">
+                <h3>🎯 Most Assists</h3>
+                <div id="topAssists"></div>
+            </div>
+            <div class="stat-card">
+                <h3>🧤 Clean Sheets</h3>
+                <div id="topCleanSheets"></div>
+            </div>
+            <div class="stat-card">
+                <h3>⭐ Fantasy Leaders</h3>
+                <div id="fantasyLeaders"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIXTURES SECTION -->
+    <div class="section" id="fixtures-section">
+        <h2 style="margin-bottom:15px; color:var(--secondary);">📅 Gameweek <span id="fixtureGW">1</span> Fixtures</h2>
+        <div id="fixturesList"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+<script>
+// ===================== DATA =====================
+const TEAMS = [
+    { id: 'med', name: 'Medeama', color: '#FFD700', emoji: '🟡' },
+    { id: 'gol', name: 'Gold Stars', color: '#228B22', emoji: '🟢' },
+    { id: 'hea', name: 'Hearts of Oak', color: '#CE1126', emoji: '❤️' },
+    { id: 'dre', name: 'Dreams FC', color: '#4169E1', emoji: '🔵' },
+    { id: 'adu', name: 'Aduana Stars', color: '#FF4500', emoji: '🟠' },
+    { id: 'sam', name: 'Samartex', color: '#006B3F', emoji: '🌲' },
+    { id: 'kar', name: 'Karela United', color: '#DC143C', emoji: '🔴' },
+    { id: 'che', name: 'Berekum Chelsea', color: '#0000CD', emoji: '🔷' },
+    { id: 'vis', name: 'Vision FC', color: '#800080', emoji: '👁️' },
+    { id: 'kot', name: 'Asante Kotoko', color: '#FF0000', emoji: '👑' },
+    { id: 'all', name: 'All Blacks', color: '#000000', emoji: '⚫' },
+    { id: 'you', name: 'Young Apostles', color: '#FFA500', emoji: '✝️' },
+    { id: 'nat', name: 'Nations FC', color: '#4B0082', emoji: '🌍' },
+    { id: 'bec', name: 'Bechem United', color: '#32CD32', emoji: '🟩' },
+    { id: 'hol', name: 'Holy Stars', color: '#FFD700', emoji: '⭐' },
+    { id: 'lio', name: 'Heart of Lions', color: '#8B0000', emoji: '🦁' },
+    { id: 'hoh', name: 'Hohoe United', color: '#00CED1', emoji: '💧' },
+    { id: 'ele', name: 'Eleven Wonders', color: '#FF6347', emoji: '1️⃣' }
+];
+
+const PLAYERS = [
+    // Goalkeepers
+    { id: 1, name: 'Benjamin Asare', team: 'hea', pos: 'GK', price: 5.0, points: 28, emoji: '🧤' },
+    { id: 2, name: 'Ibrahim Danlad', team: 'kot', pos: 'GK', price: 5.5, points: 32, emoji: '🧤' },
+    { id: 3, name: 'Felix Annan', team: 'med', pos: 'GK', price: 5.0, points: 30, emoji: '🧤' },
+    { id: 4, name: 'Joseph Addo', team: 'adu', pos: 'GK', price: 4.5, points: 25, emoji: '🧤' },
+    { id: 5, name: 'Kwame Baah', team: 'sam', pos: 'GK', price: 4.5, points: 24, emoji: '🧤' },
+    { id: 6, name: 'Eric Ofori Antwi', team: 'dre', pos: 'GK', price: 4.5, points: 22, emoji: '🧤' },
+    { id: 7, name: 'Richmond Ayi', team: 'hea', pos: 'GK', price: 4.0, points: 18, emoji: '🧤' },
+    { id: 8, name: 'Kwasi Osei', team: 'gol', pos: 'GK', price: 4.5, points: 20, emoji: '🧤' },
+
+    // Defenders
+    { id: 10, name: 'Augustine Randolf', team: 'med', pos: 'DEF', price: 6.0, points: 45, emoji: '🛡️' },
+    { id: 11, name: 'Konadu Yiadom', team: 'hea', pos: 'DEF', price: 5.5, points: 42, emoji: '🛡️' },
+    { id: 12, name: 'Mudasiru Salifu', team: 'kot', pos: 'DEF', price: 5.5, points: 40, emoji: '🛡️' },
+    { id: 13, name: 'Vincent Atinga', team: 'adu', pos: 'DEF', price: 5.0, points: 38, emoji: '🛡️' },
+    { id: 14, name: 'Samuel Sarfo', team: 'dre', pos: 'DEF', price: 5.0, points: 36, emoji: '🛡️' },
+    { id: 15, name: 'Emmanuel Adu Sarpong', team: 'sam', pos: 'DEF', price: 4.5, points: 32, emoji: '🛡️' },
+    { id: 16, name: 'Ibrahim Imoro', team: 'kot', pos: 'DEF', price: 5.5, points: 44, emoji: '🛡️' },
+    { id: 17, name: 'Rashid Nortey', team: 'med', pos: 'DEF', price: 5.0, points: 35, emoji: '🛡️' },
+    { id: 18, name: 'Nana Kofi Babil', team: 'hea', pos: 'DEF', price: 4.5, points: 30, emoji: '🛡️' },
+    { id: 19, name: 'Gideon Waja', team: 'dre', pos: 'DEF', price: 4.5, points: 28, emoji: '🛡️' },
+    { id: 20, name: 'Kwadwo Amoako', team: 'bec', pos: 'DEF', price: 4.0, points: 22, emoji: '🛡️' },
+    { id: 21, name: 'Paul Aidoo', team: 'che', pos: 'DEF', price: 4.5, points: 26, emoji: '🛡️' },
+    { id: 22, name: 'Abdul Bashiru', team: 'gol', pos: 'DEF', price: 4.0, points: 20, emoji: '🛡️' },
+    { id: 23, name: 'Francis Acquah', team: 'vis', pos: 'DEF', price: 4.0, points: 18, emoji: '🛡️' },
+    { id: 24, name: 'Kingsley Fobi', team: 'all', pos: 'DEF', price: 4.5, points: 24, emoji: '🛡️' },
+
+    // Midfielders
+    { id: 30, name: 'Salim Adams', team: 'med', pos: 'MID', price: 8.5, points: 68, emoji: '⚡' },
+    { id: 31, name: 'Augustine Okrah', team: 'bec', pos: 'MID', price: 8.0, points: 72, emoji: '⚡' },
+    { id: 32, name: 'Richmond Opoku', team: 'you', pos: 'MID', price: 7.5, points: 58, emoji: '⚡' },
+    { id: 33, name: 'Samuel Attah Kumi', team: 'gol', pos: 'MID', price: 7.0, points: 55, emoji: '⚡' },
+    { id: 34, name: 'Seidu Suraj', team: 'dre', pos: 'MID', price: 7.0, points: 52, emoji: '⚡' },
+    { id: 35, name: 'Rudolf Mensah', team: 'all', pos: 'MID', price: 6.5, points: 50, emoji: '⚡' },
+    { id: 36, name: 'Prince Tweneboah', team: 'hol', pos: 'MID', price: 6.5, points: 48, emoji: '⚡' },
+    { id: 37, name: 'Emmanuel Annor', team: 'nat', pos: 'MID', price: 6.0, points: 46, emoji: '⚡' },
+    { id: 38, name: 'Emmanuel Marfo', team: 'adu', pos: 'MID', price: 6.0, points: 44, emoji: '⚡' },
+    { id: 39, name: 'Michael Ephson', team: 'lio', pos: 'MID', price: 5.5, points: 40, emoji: '⚡' },
+    { id: 40, name: 'Mawuli Wayo', team: 'hea', pos: 'MID', price: 6.5, points: 48, emoji: '⚡' },
+    { id: 41, name: 'Stephen Amankona', team: 'che', pos: 'MID', price: 6.0, points: 45, emoji: '⚡' },
+    { id: 42, name: 'Diawisie Taylor', team: 'kar', pos: 'MID', price: 7.0, points: 54, emoji: '⚡' },
+    { id: 43, name: 'Yaw Annor', team: 'kot', pos: 'MID', price: 7.5, points: 60, emoji: '⚡' },
+    { id: 44, name: 'Abednego Tetteh', team: 'gol', pos: 'MID', price: 6.5, points: 50, emoji: '⚡' },
+    { id: 45, name: 'Kwame Peprah', team: 'kot', pos: 'MID', price: 6.0, points: 42, emoji: '⚡' },
+    { id: 46, name: 'Kwasi Donsu', team: 'med', pos: 'MID', price: 5.5, points: 38, emoji: '⚡' },
+    { id: 47, name: 'Latif Blessing', team: 'hea', pos: 'MID', price: 5.5, points: 36, emoji: '⚡' },
+    { id: 48, name: 'Hans Kwofie', team: 'adu', pos: 'MID', price: 5.0, points: 32, emoji: '⚡' },
+
+    // Forwards
+    { id: 50, name: 'Jordan Ayew', team: 'hea', pos: 'FWD', price: 9.0, points: 75, emoji: '🔥' },
+    { id: 51, name: 'Inaki Williams', team: 'kot', pos: 'FWD', price: 8.5, points: 70, emoji: '🔥' },
+    { id: 52, name: 'Antoine Semenyo', team: 'med', pos: 'FWD', price: 8.0, points: 65, emoji: '🔥' },
+    { id: 53, name: 'Ernest Nuamah', team: 'dre', pos: 'FWD', price: 7.5, points: 58, emoji: '🔥' },
+    { id: 54, name: 'Brandon Asante', team: 'gol', pos: 'FWD', price: 7.0, points: 52, emoji: '🔥' },
+    { id: 55, name: 'Christopher Baah', team: 'sam', pos: 'FWD', price: 6.5, points: 48, emoji: '🔥' },
+    { id: 56, name: 'Kofi Owusu', team: 'che', pos: 'FWD', price: 6.0, points: 44, emoji: '🔥' },
+    { id: 57, name: 'Mahatma Otoo', team: 'hea', pos: 'FWD', price: 6.5, points: 46, emoji: '🔥' },
+    { id: 58, name: 'Bernard Bortey', team: 'kot', pos: 'FWD', price: 6.0, points: 42, emoji: '🔥' },
+    { id: 59, name: 'Charles Taylor', team: 'adu', pos: 'FWD', price: 5.5, points: 38, emoji: '🔥' },
+    { id: 60, name: 'Nana Poku', team: 'bec', pos: 'FWD', price: 5.5, points: 36, emoji: '🔥' },
+    { id: 61, name: 'Emmanuel Baffour', team: 'kar', pos: 'FWD', price: 5.5, points: 34, emoji: '🔥' },
+    { id: 62, name: 'Hafiz Konkoni', team: 'bec', pos: 'FWD', price: 5.0, points: 30, emoji: '🔥' },
+    { id: 63, name: 'Victor Adebayor', team: 'vis', pos: 'FWD', price: 5.0, points: 28, emoji: '🔥' },
+    { id: 64, name: 'Prince Tagoe', team: 'hol', pos: 'FWD', price: 5.0, points: 26, emoji: '🔥' }
+];
+
+const LEAGUE_TABLE = [
+    { pos: 1, team: 'med', p: 34, w: 17, d: 11, l: 6, gf: 52, ga: 28, gd: 24, pts: 62 },
+    { pos: 2, team: 'gol', p: 34, w: 19, d: 3, l: 12, gf: 45, ga: 40, gd: 5, pts: 60 },
+    { pos: 3, team: 'hea', p: 34, w: 13, d: 15, l: 6, gf: 25, ga: 15, gd: 10, pts: 54 },
+    { pos: 4, team: 'dre', p: 34, w: 15, d: 7, l: 12, gf: 49, ga: 32, gd: 17, pts: 52 },
+    { pos: 5, team: 'adu', p: 34, w: 13, d: 11, l: 10, gf: 29, ga: 24, gd: 5, pts: 50 },
+    { pos: 6, team: 'sam', p: 34, w: 13, d: 11, l: 10, gf: 26, ga: 25, gd: 1, pts: 50 },
+    { pos: 7, team: 'kar', p: 34, w: 13, d: 10, l: 11, gf: 32, ga: 33, gd: -1, pts: 49 },
+    { pos: 8, team: 'che', p: 33, w: 13, d: 8, l: 12, gf: 32, ga: 32, gd: 0, pts: 47 },
+    { pos: 9, team: 'vis', p: 34, w: 12, d: 11, l: 11, gf: 38, ga: 34, gd: 4, pts: 47 },
+    { pos: 10, team: 'kot', p: 33, w: 12, d: 10, l: 11, gf: 38, ga: 29, gd: 9, pts: 46 },
+    { pos: 11, team: 'all', p: 34, w: 12, d: 9, l: 13, gf: 34, ga: 31, gd: 3, pts: 45 },
+    { pos: 12, team: 'you', p: 34, w: 12, d: 9, l: 13, gf: 37, ga: 37, gd: 0, pts: 45 },
+    { pos: 13, team: 'nat', p: 34, w: 12, d: 8, l: 14, gf: 30, ga: 31, gd: -1, pts: 44 },
+    { pos: 14, team: 'bec', p: 33, w: 12, d: 8, l: 13, gf: 35, ga: 39, gd: -4, pts: 44 },
+    { pos: 15, team: 'hol', p: 33, w: 12, d: 7, l: 14, gf: 27, ga: 39, gd: -12, pts: 43 },
+    { pos: 16, team: 'lio', p: 33, w: 11, d: 9, l: 13, gf: 33, ga: 33, gd: 0, pts: 42 },
+    { pos: 17, team: 'hoh', p: 27, w: 7, d: 9, l: 11, gf: 22, ga: 29, gd: -7, pts: 30 },
+    { pos: 18, team: 'ele', p: 33, w: 2, d: 4, l: 27, gf: 23, ga: 73, gd: -50, pts: 10 }
+];
+
+const FIXTURES_GW1 = [
+    { home: 'med', away: 'adu', time: '15:00' },
+    { home: 'hea', away: 'kot', time: '18:00' },
+    { home: 'dre', away: 'gol', time: '15:00' },
+    { home: 'sam', away: 'kar', time: '15:00' },
+    { home: 'che', away: 'vis', time: '15:00' },
+    { home: 'all', away: 'you', time: '15:00' },
+    { home: 'nat', away: 'bec', time: '15:00' },
+    { home: 'hol', away: 'lio', time: '15:00' },
+    { home: 'hoh', away: 'ele', time: '15:00' }
+];
+
+// ===================== STATE =====================
+let state = {
+    budget: 100.0,
+    formation: '3-4-3',
+    squad: [],
+    bench: [],
+    captain: null,
+    totalPoints: 0,
+    gameweek: 1,
+    freeTransfers: 1,
+    filter: 'all',
+    search: ''
+};
+
+// Load from localStorage
+const saved = localStorage.getItem('gpfState');
+if (saved) {
+    try {
+        state = JSON.parse(saved);
+    } catch(e) {}
+}
+
+// ===================== HELPERS =====================
+function getTeam(id) { return TEAMS.find(t => t.id === id); }
+function getPlayer(id) { return PLAYERS.find(p => p.id === id); }
+function formatPrice(p) { return p.toFixed(1) + 'M'; }
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function saveState() {
+    localStorage.setItem('gpfState', JSON.stringify(state));
+}
+
+// ===================== NAVIGATION =====================
+document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.section + '-section').classList.add('active');
+        if (tab.dataset.section === 'transfers') renderPlayerList();
+        if (tab.dataset.section === 'league') renderLeagueTable();
+        if (tab.dataset.section === 'stats') renderStats();
+        if (tab.dataset.section === 'fixtures') renderFixtures();
+    });
+});
+
+// ===================== FORMATION =====================
+document.querySelectorAll('.formation-btn[data-form]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.formation-btn[data-form]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.formation = btn.dataset.form;
+        renderPitch();
+        saveState();
+    });
+});
+
+function getFormation() {
+    const parts = state.formation.split('-');
+    return { def: parseInt(parts[0]), mid: parseInt(parts[1]), fwd: parseInt(parts[2]) };
+}
+
+// ===================== PITCH RENDERING =====================
+function renderPitch() {
+    const form = getFormation();
+    const gkRow = document.getElementById('gk-row');
+    const defRow = document.getElementById('def-row');
+    const midRow = document.getElementById('mid-row');
+    const fwdRow = document.getElementById('fwd-row');
+    const benchRow = document.getElementById('bench-row');
+
+    gkRow.innerHTML = '';
+    defRow.innerHTML = '';
+    midRow.innerHTML = '';
+    fwdRow.innerHTML = '';
+    benchRow.innerHTML = '';
+
+    // GK
+    const gk = state.squad.find(p => getPlayer(p).pos === 'GK');
+    gkRow.innerHTML = createPlayerSlot(gk, 'gk', 0);
+
+    // DEF
+    const defs = state.squad.filter(p => getPlayer(p).pos === 'DEF');
+    for (let i = 0; i < form.def; i++) {
+        defRow.innerHTML += createPlayerSlot(defs[i], 'def', i);
+    }
+
+    // MID
+    const mids = state.squad.filter(p => getPlayer(p).pos === 'MID');
+    for (let i = 0; i < form.mid; i++) {
+        midRow.innerHTML += createPlayerSlot(mids[i], 'mid', i);
+    }
+
+    // FWD
+    const fwds = state.squad.filter(p => getPlayer(p).pos === 'FWD');
+    for (let i = 0; i < form.fwd; i++) {
+        fwdRow.innerHTML += createPlayerSlot(fwds[i], 'fwd', i);
+    }
+
+    // Bench
+    const benchPlayers = state.bench.map(id => getPlayer(id));
+    for (let i = 0; i < 4; i++) {
+        benchRow.innerHTML += createBenchSlot(benchPlayers[i], i);
+    }
+
+    // Update budget & points
+    document.getElementById('budget').textContent = state.budget.toFixed(1);
+    document.getElementById('totalPoints').textContent = state.totalPoints;
+    document.getElementById('currentGW').textContent = state.gameweek;
+
+    // Captain click handlers
+    document.querySelectorAll('.player-slot').forEach(slot => {
+        slot.addEventListener('click', () => {
+            const pid = parseInt(slot.dataset.pid);
+            if (pid) toggleCaptain(pid);
+        });
+    });
+}
+
+function createPlayerSlot(pid, posClass, index) {
+    if (!pid) {
+        return '<div class="player-slot empty" data-pos="' + posClass + '" data-index="' + index + '">' +
+            '<div class="player-circle ' + posClass + '"></div>' +
+            '<div class="player-name">' + posClass.toUpperCase() + '</div></div>';
+    }
+    const p = getPlayer(pid);
+    const t = getTeam(p.team);
+    const isCap = state.captain === pid;
+    const lastName = p.name.split(' ').pop();
+    return '<div class="player-slot" data-pid="' + pid + '">' +
+        '<div class="player-circle ' + posClass.toLowerCase() + ' ' + (isCap ? 'captain' : '') + '">' +
+        p.emoji + (isCap ? '<div class="captain-badge">C</div>' : '') +
+        '</div><div class="player-name">' + lastName + '</div>' +
+        '<div class="player-team">' + t.emoji + ' ' + t.name + '</div>' +
+        '<div class="player-points">' + p.points + ' pts</div></div>';
+}
+
+function createBenchSlot(p, index) {
+    if (!p) {
+        return '<div class="bench-slot empty" data-index="' + index + '">' +
+            '<div class="player-circle" style="background:#333;"></div>' +
+            '<div class="player-name">Sub</div></div>';
+    }
+    const t = getTeam(p.team);
+    return '<div class="bench-slot" data-pid="' + p.id + '">' +
+        '<div class="player-circle ' + p.pos.toLowerCase() + '">' + p.emoji + '</div>' +
+        '<div class="player-name">' + p.name.split(' ').pop() + '</div>' +
+        '<div class="player-team" style="font-size:8px; color:var(--muted);">' + t.emoji + '</div></div>';
+}
+
+function toggleCaptain(pid) {
+    if (state.captain === pid) {
+        state.captain = null;
+    } else {
+        state.captain = pid;
+    }
+    renderPitch();
+    saveState();
+    showToast(state.captain === pid ? 'Captain set!' : 'Captain removed');
+}
+
+// ===================== PLAYER LIST =====================
+function renderPlayerList() {
+    const list = document.getElementById('playerList');
+    const filter = state.filter;
+    const search = state.search.toLowerCase();
+
+    let filtered = PLAYERS.filter(p => {
+        if (filter !== 'all' && p.pos !== filter) return false;
+        if (search && !p.name.toLowerCase().includes(search)) return false;
+        return true;
+    });
+
+    filtered.sort((a, b) => b.points - a.points);
+
+    list.innerHTML = filtered.map(p => {
+        const t = getTeam(p.team);
+        const inSquad = state.squad.includes(p.id) || state.bench.includes(p.id);
+        const canAfford = state.budget >= p.price;
+        return '<div class="player-card ' + (inSquad ? 'selected' : '') + '" data-pid="' + p.id + '">' +
+            '<div class="emoji">' + p.emoji + '</div>' +
+            '<div class="player-info"><div class="name">' + p.name + '</div>' +
+            '<div class="meta">' + t.emoji + ' ' + t.name + ' &middot; ' + p.pos + '</div></div>' +
+            '<div class="player-price">' + formatPrice(p.price) + '</div>' +
+            '<div class="player-stats"><div class="pts">' + p.points + '</div>' +
+            '<div style="color:var(--muted);">pts</div></div>' +
+            '<button class="add-btn" onclick="togglePlayer(' + p.id + ')" ' + 
+            (inSquad || !canAfford ? 'disabled' : '') + '>' + (inSquad ? '&#10003;' : '+') + '</button></div>';
+    }).join('');
+
+    document.getElementById('freeTransfers').textContent = state.freeTransfers;
+}
+
+function togglePlayer(pid) {
+    const p = getPlayer(pid);
+    const inSquad = state.squad.includes(pid);
+    const inBench = state.bench.includes(pid);
+
+    if (inSquad || inBench) {
+        state.squad = state.squad.filter(id => id !== pid);
+        state.bench = state.bench.filter(id => id !== pid);
+        state.budget += p.price;
+        if (state.captain === pid) state.captain = null;
+        showToast(p.name + ' removed');
+    } else {
+        const form = getFormation();
+        const posCounts = {
+            GK: state.squad.filter(id => getPlayer(id).pos === 'GK').length,
+            DEF: state.squad.filter(id => getPlayer(id).pos === 'DEF').length,
+            MID: state.squad.filter(id => getPlayer(id).pos === 'MID').length,
+            FWD: state.squad.filter(id => getPlayer(id).pos === 'FWD').length
+        };
+
+        const limits = { GK: 1, DEF: form.def, MID: form.mid, FWD: form.fwd };
+
+        if (state.budget < p.price) {
+            showToast('Not enough budget!');
+            return;
+        }
+
+        const teamCount = state.squad.filter(id => getPlayer(id).team === p.team).length;
+        if (teamCount >= 3) {
+            showToast('Max 3 players per team!');
+            return;
+        }
+
+        if (posCounts[p.pos] < limits[p.pos]) {
+            state.squad.push(pid);
+            state.budget -= p.price;
+            showText(p.name + ' added!');
+        } else if (state.bench.length < 4) {
+            state.bench.push(pid);
+            state.budget -= p.price;
+            showToast(p.name + ' added to bench!');
+        } else {
+            showToast('Squad full!');
+            return;
+        }
+    }
+
+    renderPlayerList();
+    renderPitch();
+    saveState();
+}
+
+// Filters
+document.querySelectorAll('.filter-btn[data-pos]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn[data-pos]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.filter = btn.dataset.pos;
+        renderPlayerList();
+    });
+});
+
+document.getElementById('playerSearch').addEventListener('input', (e) => {
+    state.search = e.target.value;
+    renderPlayerList();
+});
+
+// ===================== LEAGUE TABLE =====================
+function renderLeagueTable() {
+    const container = document.getElementById('leagueTable');
+    let html = '<div class="table-header">' +
+        '<span>Pos</span><span>Team</span><span>P</span><span>W</span><span>D</span>' +
+        '<span>L</span><span>GD</span><span>Pts</span></div>';
+
+    LEAGUE_TABLE.forEach(row => {
+        const t = getTeam(row.team);
+        const posClass = row.pos <= 4 ? 'pos-champ' : row.pos >= 16 ? 'pos-rel' : '';
+        html += '<div class="table-row ' + posClass + '">' +
+            '<span>' + row.pos + '</span>' +
+            '<span class="team-cell">' +
+            '<span class="team-badge" style="background:' + t.color + '20; color:' + t.color + ';">' + t.emoji + '</span>' +
+            t.name + '</span>' +
+            '<span>' + row.p + '</span><span>' + row.w + '</span><span>' + row.d + '</span>' +
+            '<span>' + row.l + '</span><span>' + (row.gd > 0 ? '+' + row.gd : row.gd) + '</span>' +
+            '<span style="font-weight:bold;">' + row.pts + '</span></div>';
+    });
+    container.innerHTML = html;
+}
+
+// ===================== STATS =====================
+function renderStats() {
+    const scorers = [...PLAYERS].sort((a, b) => b.points - a.points).slice(0, 5);
+    document.getElementById('topScorers').innerHTML = scorers.map((p, i) => {
+        const t = getTeam(p.team);
+        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
+        return '<div class="leaderboard-row">' +
+            '<span class="rank ' + rankClass + '">' + (i+1) + '</span>' +
+            '<span class="leader-name">' + p.emoji + ' ' + p.name + ' <span style="color:var(--muted);">(' + t.emoji + ' ' + t.name + ')</span></span>' +
+            '<span class="leader-points">' + p.points + '</span></div>';
+    }).join('');
+
+    const assists = [...PLAYERS].filter(p => p.pos === 'MID' || p.pos === 'FWD')
+        .sort((a, b) => (b.points * 0.6) - (a.points * 0.6)).slice(0, 5);
+    document.getElementById('topAssists').innerHTML = assists.map((p, i) => {
+        const t = getTeam(p.team);
+        const ast = Math.floor(p.points * 0.35);
+        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
+        return '<div class="leaderboard-row">' +
+            '<span class="rank ' + rankClass + '">' + (i+1) + '</span>' +
+            '<span class="leader-name">' + p.emoji + ' ' + p.name + ' <span style="color:var(--muted);">(' + t.emoji + ')</span></span>' +
+            '<span class="leader-points">' + ast + '</span></div>';
+    }).join('');
+
+    const cleanSheets = PLAYERS.filter(p => p.pos === 'GK')
+        .sort((a, b) => b.points - a.points).slice(0, 5);
+    document.getElementById('topCleanSheets').innerHTML = cleanSheets.map((p, i) => {
+        const t = getTeam(p.team);
+        const cs = Math.floor(p.points / 5);
+        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
+        return '<div class="leaderboard-row">' +
+            '<span class="rank ' + rankClass + '">' + (i+1) + '</span>' +
+            '<span class="leader-name">' + p.emoji + ' ' + p.name + ' <span style="color:var(--muted);">(' + t.emoji + ')</span></span>' +
+            '<span class="leader-points">' + cs + '</span></div>';
+    }).join('');
+
+    document.getElementById('fantasyLeaders').innerHTML = scorers.slice(0, 5).map((p, i) => {
+        const t = getTeam(p.team);
+        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
+        return '<div class="leaderboard-row">' +
+            '<span class="rank ' + rankClass + '">' + (i+1) + '</span>' +
+            '<span class="leader-name">' + p.emoji + ' ' + p.name + ' <span style="color:var(--muted);">(' + t.emoji + ' ' + t.name + ')</span></span>' +
+            '<span class="leader-points">' + p.points + '</span></div>';
+    }).join('');
+}
+
+// ===================== FIXTURES =====================
+function renderFixtures() {
+    document.getElementById('fixtureGW').textContent = state.gameweek;
+    const list = document.getElementById('fixturesList');
+
+    list.innerHTML = FIXTURES_GW1.map(f => {
+        const home = getTeam(f.home);
+        const away = getTeam(f.away);
+        return '<div class="fixture-card">' +
+            '<div class="fixture-team">' +
+            '<span style="font-size:20px;">' + home.emoji + '</span>' +
+            '<span style="font-weight:600;">' + home.name + '</span></div>' +
+            '<div class="fixture-time">' +
+            '<div style="font-size:12px; color:var(--muted);">vs</div>' +
+            '<div style="font-size:13px; color:var(--secondary); font-weight:bold;">' + f.time + '</div></div>' +
+            '<div class="fixture-team away">' +
+            '<span style="font-weight:600;">' + away.name + '</span>' +
+            '<span style="font-size:20px;">' + away.emoji + '</span></div></div>';
+    }).join('');
+}
+
+// ===================== SAVE TEAM =====================
+document.getElementById('saveTeamBtn').addEventListener('click', () => {
+    const form = getFormation();
+    const posCounts = {
+        GK: state.squad.filter(id => getPlayer(id).pos === 'GK').length,
+        DEF: state.squad.filter(id => getPlayer(id).pos === 'DEF').length,
+        MID: state.squad.filter(id => getPlayer(id).pos === 'MID').length,
+        FWD: state.squad.filter(id => getPlayer(id).pos === 'FWD').length
+    };
+
+    if (posCounts.GK < 1 || posCounts.DEF < form.def || posCounts.MID < form.mid || posCounts.FWD < form.fwd) {
+        showToast('Complete your starting XI first!');
+        return;
+    }
+
+    if (!state.captain) {
+        showToast('Select a captain!');
+        return;
+    }
+
+    state.totalPoints = state.squad.reduce((sum, id) => {
+        const p = getPlayer(id);
+        return sum + (id === state.captain ? p.points * 2 : p.points);
+    }, 0);
+
+    saveState();
+    showToast('Team saved successfully!');
+    renderPitch();
+});
+
+// ===================== INIT =====================
+renderPitch();
+</script>
+</body>
+</html>
